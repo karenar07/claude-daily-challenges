@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Daily Challenges</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #eeece8;
+    --text: #1a1a1a;
+    --text2: #6b6b6b;
+    --text3: #999;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --purple-dark: #3C3489;
+    --green-light: #EAF3DE;
+    --green-dark: #27500A;
+    --amber-light: #FAEEDA;
+    --amber-dark: #633806;
+    --teal: #1D9E75;
+    --coral: #D4537E;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --bg2: #242424;
+      --bg3: #2e2e2e;
+      --text: #f0f0f0;
+      --text2: #aaa;
+      --text3: #666;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --purple-light: #2a2660;
+      --purple-dark: #a8a2f0;
+      --green-light: #1a2e0e;
+      --green-dark: #7ecb4a;
+      --amber-light: #2e2008;
+      --amber-dark: #f0b84a;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+  .container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
+  button { font-family: inherit; cursor: pointer; }
+  textarea { font-family: inherit; }
+
+  /* Hero */
+  .hero { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .hero-h { font-size: 16px; font-weight: 500; color: var(--text); }
+  .hero-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .hero-streak { font-size: 12px; color: var(--teal); font-weight: 500; margin-top: 5px; }
+  .level-badge { border-radius: var(--radius); padding: 10px 16px; text-align: center; flex-shrink: 0; }
+  .level-num { font-size: 22px; font-weight: 500; line-height: 1; color: white; }
+  .level-lbl { font-size: 11px; color: white; opacity: 0.88; margin-top: 2px; }
+
+  /* XP */
+  .xp-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+  .xp-lbl { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .xp-bar { flex: 1; background: var(--bg3); border-radius: 99px; height: 8px; }
+  .xp-fill { height: 8px; border-radius: 99px; background: var(--purple); transition: width 0.5s ease; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 1.25rem; }
+  .stat { background: var(--bg2); border-radius: var(--radius); padding: 10px 8px; text-align: center; }
+  .stat-num { font-size: 20px; font-weight: 500; }
+  .stat-lbl { font-size: 10px; color: var(--text2); margin-top: 2px; }
+
+  /* Topics banner */
+  .topics-banner { background: var(--bg2); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 12px; }
+  .topics-title { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 7px; }
+  .topic-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .topic-chip { font-size: 12px; padding: 3px 10px; border-radius: 99px; background: var(--purple-light); color: var(--purple-dark); font-weight: 500; }
+  .topics-edit-btn { font-size: 12px; color: var(--text2); background: none; border: none; padding: 0; cursor: pointer; }
+  .topics-edit-btn:hover { color: var(--text); }
+
+  /* Check-in */
+  .checkin { background: var(--bg); border: 1.5px solid var(--purple); border-radius: var(--radius-lg); padding: 1.5rem; }
+  .checkin-h { font-size: 17px; font-weight: 500; margin-bottom: 6px; }
+  .checkin-sub { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 1.25rem; }
+  .field-wrap { margin-bottom: 12px; }
+  .field-label { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  textarea { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 10px 12px; font-size: 13px; color: var(--text); background: var(--bg2); resize: none; line-height: 1.6; }
+  textarea:focus { outline: none; border-color: var(--purple); }
+  .checkin-note { font-size: 12px; color: var(--text3); margin-bottom: 1rem; line-height: 1.5; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 0.5px solid var(--border); margin-bottom: 1.25rem; overflow-x: auto; }
+  .tab { font-size: 13px; padding: 6px 12px 10px; cursor: pointer; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; border-top: none; border-left: none; border-right: none; white-space: nowrap; }
+  .tab.active { color: var(--text); border-bottom-color: var(--purple); font-weight: 500; }
+
+  /* Cards */
+  .day-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
+  .day-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+  .day-card.done { opacity: 0.55; }
+  .day-card.today-card { border-color: var(--purple); border-width: 1.5px; }
+  .day-label { font-size: 11px; font-weight: 500; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .day-title { font-size: 14px; font-weight: 500; }
+  .day-hook { font-size: 13px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+  .day-chips { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 99px; white-space: nowrap; font-weight: 500; }
+  .badge-done { background: var(--green-light); color: var(--green-dark); }
+  .badge-today { background: var(--purple-light); color: var(--purple-dark); }
+  .badge-neutral { background: var(--bg2); color: var(--text2); }
+  .xp-chip { font-size: 11px; color: var(--purple); font-weight: 500; }
+  .skill-tag { font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--bg2); color: var(--text2); }
+
+  /* Generating */
+  .gen-loading { text-align: center; padding: 2.5rem 1rem; }
+  .gen-loading-title { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+  .gen-loading-sub { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.6; }
+  .dots { display: inline-flex; gap: 5px; }
+  .dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); animation: bounce 1.2s infinite; }
+  .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,80%,100%{transform:scale(.55);opacity:.35}40%{transform:scale(1);opacity:1}}
+
+  /* Detail */
+  .back-btn { background: none; border: none; font-size: 13px; color: var(--text2); padding: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  .back-btn:hover { color: var(--text); }
+  .detail-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+  .detail-emoji { font-size: 30px; }
+  .detail-title { font-size: 17px; font-weight: 500; }
+  .detail-hook { font-size: 14px; color: var(--text2); margin-top: 4px; line-height: 1.6; }
+  .detail-meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .pill { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 99px; }
+  .section-hd { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin: 1.25rem 0 10px; }
+  .step { display: flex; gap: 12px; margin-bottom: 11px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--purple-light); color: var(--purple-dark); font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 14px; line-height: 1.65; flex: 1; }
+  .try-box { background: var(--purple-light); border-radius: var(--radius); padding: 12px 14px; margin: 1rem 0; }
+  .try-lbl { font-size: 11px; font-weight: 500; color: var(--purple-dark); margin-bottom: 4px; }
+  .try-prompt { font-size: 13px; color: var(--purple-dark); line-height: 1.6; font-family: 'Courier New', monospace; }
+  .hint-box { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; margin-top: 10px; }
+  .hint-lbl { font-size: 11px; font-weight: 500; color: var(--text2); margin-bottom: 4px; }
+  .hint-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .reflect-box { border-left: 3px solid var(--purple); padding: 10px 14px; margin-top: 10px; background: var(--bg2); border-radius: 0 var(--radius) var(--radius) 0; }
+  .reflect-lbl { font-size: 11px; font-weight: 500; color: var(--purple); margin-bottom: 4px; }
+  .reflect-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .topic-tie { background: var(--purple-light); border-radius: var(--radius); padding: 9px 12px; margin-top: 10px; font-size: 12px; color: var(--purple-dark); line-height: 1.6; }
+  .done-banner { background: var(--green-light); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--green-dark); font-weight: 500; margin-top: 1rem; }
+  .action-row { display: flex; gap: 10px; margin-top: 1.25rem; flex-wrap: wrap; }
+  .btn-primary { background: var(--purple); color: white; border: none; border-radius: var(--radius); padding: 9px 18px; font-size: 14px; font-weight: 500; text-decoration: none; display: inline-block; }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-secondary { background: none; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 9px 18px; font-size: 14px; color: var(--text2); }
+  .btn-secondary:hover { background: var(--bg2); }
+
+  /* Achievements */
+  .ach-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .ach-card { border-radius: var(--radius-lg); padding: 1rem; border: 0.5px solid var(--border); text-align: center; }
+  .ach-card.unlocked { background: var(--bg); }
+  .ach-card.locked { background: var(--bg2); opacity: 0.4; }
+  .ach-icon { font-size: 26px; margin-bottom: 6px; }
+  .ach-name { font-size: 12px; font-weight: 500; }
+  .ach-desc { font-size: 11px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+  .ach-xp { font-size: 11px; color: var(--purple); font-weight: 500; margin-top: 4px; }
+
+  /* Toast */
+  .toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); color: white; padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; white-space: nowrap; z-index: 100; animation: slideIn .3s ease; pointer-events: none; }
+  @keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 14px; line-height: 1.7; }
+  .error-box { background: var(--bg2); border-radius: var(--radius-lg); padding: 1.25rem; text-align: center; font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 1rem; }
+  .week-summary { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 1.25rem; padding: 1rem 1.25rem; background: var(--bg2); border-radius: var(--radius-lg); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-20250514';
+
+const LEVELS = [
+  {name:'Curious',min:0,color:'#888780'},
+  {name:'Explorer',min:100,color:'#1D9E75'},
+  {name:'Practitioner',min:250,color:'#7F77DD'},
+  {name:'Power User',min:500,color:'#BA7517'},
+  {name:'Claude Pro',min:800,color:'#D4537E'},
+  {name:'Claude Master',min:1100,color:'#534AB7'}
+];
+const LEVEL_MAXES = [100,250,500,800,1100,1400];
+
+const ACHIEVEMENTS = [
+  {id:'first',icon:'🌱',name:'First step',desc:'Complete your first challenge',xp:20,check:(c,s)=>c.length>=1},
+  {id:'streak3',icon:'🔥',name:'On a roll',desc:'3-day streak',xp:30,check:(c,s)=>s>=3},
+  {id:'week1',icon:'⭐',name:'First week done',desc:'Complete 5 challenges',xp:60,check:(c,s)=>c.length>=5},
+  {id:'streak5',icon:'💎',name:'Unstoppable',desc:'5-day streak',xp:50,check:(c,s)=>s>=5},
+  {id:'week2',icon:'🚀',name:'Two weeks strong',desc:'10 challenges completed',xp:100,check:(c,s)=>c.length>=10},
+  {id:'streak10',icon:'👑',name:'Claude Legend',desc:'10-day streak',xp:150,check:(c,s)=>s>=10},
+  {id:'month',icon:'🏆',name:'Month of mastery',desc:'20 challenges completed',xp:200,check:(c,s)=>c.length>=20}
+];
+
+const DIFF_COLORS = {
+  Beginner: {bg:'#EAF3DE',color:'#27500A'},
+  Intermediate: {bg:'#EEEDFE',color:'#3C3489'},
+  Advanced: {bg:'#FAECE7',color:'#4A1B0C'}
+};
+
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+
+let state = {
+  view: 'main', tab: 'this-week',
+  completed: [], completedSkills: [],
+  streak: 0, lastDate: null,
+  weeklyTopics: null, weeklyTopicsDate: null,
+  weeklyChallenges: null, weeklyChallengesDate: null,
+  weekSummary: null,
+  generating: false, genError: false,
+  selectedDay: null, editingTopics: false,
+  allChallenges: []
+};
+
+function calcXP(c) { return c.length * 30; }
+function calcLvlIdx(xp) { for(let i=LEVELS.length-1;i>=0;i--){ if(xp>=LEVELS[i].min) return i; } return 0; }
+function checkAchs(c,s) { return ACHIEVEMENTS.filter(a=>{ try{return a.check(c,s);}catch{return false;} }); }
+
+function getWeekStart(d) {
+  const day = new Date(d);
+  const diff = day.getDay()===0 ? -6 : 1-day.getDay();
+  day.setDate(day.getDate()+diff);
+  day.setHours(0,0,0,0);
+  return day;
+}
+
+function isNewWeek() {
+  if(!state.weeklyTopicsDate) return true;
+  const wkSaved = getWeekStart(new Date(state.weeklyTopicsDate)).toDateString();
+  const wkNow = getWeekStart(new Date()).toDateString();
+  return wkSaved !== wkNow;
+}
+
+function hasChallengesForThisWeek() {
+  if(!state.weeklyChallenges||!state.weeklyChallengesDate) return false;
+  const wkSaved = getWeekStart(new Date(state.weeklyChallengesDate)).toDateString();
+  const wkNow = getWeekStart(new Date()).toDateString();
+  return wkSaved === wkNow;
+}
+
+function getTodayDayIndex() {
+  const d = new Date().getDay();
+  if(d===0||d===6) return null;
+  return d-1;
+}
+
+function isDayComplete(dayIdx) {
+  if(!state.weeklyChallengesDate) return false;
+  return state.completed.includes(dayIdx+'_'+state.weeklyChallengesDate);
+}
+
+function saveState() {
+  try { localStorage.setItem('cdc_state', JSON.stringify(state)); } catch(e){}
+}
+
+function loadState() {
+  try {
+    const r = localStorage.getItem('cdc_state');
+    if(r) Object.assign(state, JSON.parse(r));
+  } catch(e){}
+}
+
+function showToast(msg, color) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.background = color||'#7F77DD';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3000);
+}
+
+function saveTopics() {
+  const w = document.getElementById('ti1')?.value.trim();
+  const r = document.getElementById('ti2')?.value.trim();
+  const t = document.getElementById('ti3')?.value.trim();
+  if(!w&&!r&&!t) return;
+  state.weeklyTopics = {watching:w||'',reading:r||'',thinking:t||''};
+  state.weeklyTopicsDate = new Date().toISOString();
+  state.weeklyChallenges = null;
+  state.weeklyChallengesDate = null;
+  state.editingTopics = false;
+  saveState();
+  render();
+}
+
+function markComplete(dayIdx) {
+  const ch = state.weeklyChallenges?.[dayIdx];
+  if(!ch) return;
+  const key = dayIdx+'_'+state.weeklyChallengesDate;
+  if(state.completed.includes(key)) return;
+  const prevAchs = checkAchs(state.completed,state.streak).map(a=>a.id);
+  state.completed.push(key);
+  if(!state.completedSkills) state.completedSkills=[];
+  state.completedSkills.push(ch.skillName||'');
+  const today = new Date().toDateString();
+  if(state.lastDate!==today){ state.streak+=1; state.lastDate=today; }
+  const newAchs = checkAchs(state.completed,state.streak).filter(a=>!prevAchs.includes(a.id));
+  saveState();
+  state.selectedDay = null;
+  render();
+  showToast(`+${ch.xp||25} XP earned! 🎉`);
+  if(newAchs.length) setTimeout(()=>showToast(`🏆 Achievement: ${newAchs[0].name}!`,'#1D9E75'),1500);
+}
+
+async function generateWeek() {
+  if(state.generating) return;
+  state.generating = true; state.genError = false;
+  render();
+  const t = state.weeklyTopics;
+  const allDoneSkills = (state.completedSkills||[]).join(', ')||'none yet';
+
+  const prompt = `You are creating a personalised week of Claude learning challenges for Karen, who works in AI/tech at AutogenAI.
+
+Her interests this week:
+- Watching/listening: ${t?.watching||'not specified'}
+- Reading/following: ${t?.reading||'not specified'}
+- Working on/thinking about: ${t?.thinking||'not specified'}
+
+Skills already practised: ${allDoneSkills}
+
+Create exactly 5 daily challenges (Monday to Friday). Each challenge:
+- Takes 10-15 minutes maximum
+- Is grounded in one of her weekly interests as the scenario
+- Teaches a specific Claude skill
+- Has a ready-to-paste starter prompt
+- Has 4 concrete steps
+
+Vary skill areas across the week. Natural learning progression (easier Mon, harder Fri).
+
+Available skill areas (pick 5):
+Prompting: persona prompts (Beginner), Prompting: step-by-step reasoning (Beginner), Prompting: negative constraints (Intermediate), Building a React artifact (Beginner), Creating a Word doc (Beginner), Creating a PowerPoint (Beginner), PDF extraction (Beginner), Creating an Excel spreadsheet (Intermediate), Cowork: connecting an integration (Intermediate), Cowork: agentic goal-first task (Intermediate), Cowork: web research (Intermediate), AI app: Claude-in-Claude (Advanced), AI app: persistent storage artifact (Advanced)
+
+Make scenarios genuinely tied to her specific interests — clever and personal.
+
+Respond ONLY with valid JSON, no markdown:
+{
+  "weekSummary": "one sentence theme for this week",
+  "challenges": [
+    {
+      "day": "Monday",
+      "emoji": "single emoji",
+      "title": "title under 8 words",
+      "hook": "one engaging sentence max 18 words",
+      "skillName": "skill area name",
+      "diff": "Beginner|Intermediate|Advanced",
+      "xp": 25,
+      "topicTie": "one sentence — how this connects to her interests",
+      "steps": ["Step 1 (2-3 min)","Step 2 (2-3 min)","Step 3 (2-3 min)","Step 4 (2-3 min)"],
+      "starter": "exact prompt to paste into Claude",
+      "hint": "one practical tip",
+      "reflect": "one question bridging to her real work at AutogenAI"
+    }
+  ]
+}`;
+
+  try {
+    const res = await fetch(ANTHROPIC_API_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({model:MODEL, max_tokens:3000, messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const text = data.content.map(b=>b.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    state.weeklyChallenges = parsed.challenges;
+    state.weekSummary = parsed.weekSummary;
+    state.weeklyChallengesDate = new Date().toISOString();
+    if(!state.allChallenges) state.allChallenges=[];
+    state.allChallenges.push({date:state.weeklyChallengesDate, challenges:parsed.challenges, summary:parsed.weekSummary});
+    saveState();
+  } catch(e) {
+    state.genError = true;
+  }
+  state.generating = false;
+  render();
+}
+
+function getGreeting() {
+  const done = state.completed.length;
+  const xp = calcXP(state.completed);
+  const lvl = LEVELS[calcLvlIdx(xp)];
+  const dayIdx = getTodayDayIndex();
+  if(done===0) return ['Ready for your first challenge?','Fill in your weekly topics and your personalised challenges will be generated.'];
+  const todayCh = dayIdx!==null&&state.weeklyChallenges ? state.weeklyChallenges[dayIdx] : null;
+  if(todayCh&&!isDayComplete(dayIdx)) return [`Good morning — ${DAYS[dayIdx]}'s challenge is waiting.`,`${done} done · ${xp} XP · ${lvl.name}`];
+  if(todayCh&&isDayComplete(dayIdx)) return [`${DAYS[dayIdx]} done — nice work!`,`${done} challenges · ${xp} XP · ${lvl.name}`];
+  return [`${done} challenges in — you're a ${lvl.name}.`,`${xp} XP earned. New topics on Monday unlock a fresh week.`];
+}
+
+function renderCheckin() {
+  const t = state.weeklyTopics;
+  return `<div class="checkin">
+    <div class="checkin-h">${state.editingTopics?'Update your weekly topics':'👋 What\'s on your mind this week?'}</div>
+    <div class="checkin-sub">${state.editingTopics?'Update anything below — your challenges will regenerate around your new topics.':'Takes 30 seconds. The more specific you are, the more relevant your challenges.'}</div>
+    <div class="field-wrap"><div class="field-label">Watching or listening to</div>
+      <textarea id="ti1" rows="2" placeholder="e.g. The Bear, a podcast about energy, Formula 1…">${t?.watching||''}</textarea></div>
+    <div class="field-wrap"><div class="field-label">Reading or following</div>
+      <textarea id="ti2" rows="2" placeholder="e.g. a book on strategy, AI newsletters, a news story about…">${t?.reading||''}</textarea></div>
+    <div class="field-wrap"><div class="field-label">Thinking about or working on</div>
+      <textarea id="ti3" rows="2" placeholder="e.g. a pitch we're preparing, how to run better retros…">${t?.thinking||''}</textarea></div>
+    <div class="checkin-note">Stored locally in your browser only.</div>
+    <div class="action-row">
+      <button class="btn-primary" onclick="saveTopics()">Save and generate my week →</button>
+      ${state.editingTopics?`<button class="btn-secondary" onclick="state.editingTopics=false;render()">Cancel</button>`:''}
+    </div>
+  </div>`;
+}
+
+function renderTopicsBanner() {
+  const t = state.weeklyTopics;
+  if(!t) return '';
+  const chips = [t.watching,t.reading,t.thinking].filter(Boolean);
+  return `<div class="topics-banner">
+    <div style="font-size:18px;flex-shrink:0;margin-top:1px">🎯</div>
+    <div style="flex:1">
+      <div class="topics-title">This week's context</div>
+      <div class="topic-chips">${chips.map(c=>`<span class="topic-chip">${c.length>45?c.slice(0,45)+'…':c}</span>`).join('')}</div>
+      <button class="topics-edit-btn" onclick="state.editingTopics=true;render()">Update for next week →</button>
+    </div>
+  </div>`;
+}
+
+function renderThisWeek() {
+  if(!state.weeklyTopics) return `<div class="empty-state">Fill in your weekly topics above to generate your personalised challenges.</div>`;
+  if(state.generating) return `<div class="gen-loading">
+    <div class="gen-loading-title">Building your week…</div>
+    <div class="gen-loading-sub">Matching your interests to Claude skills and writing specific challenges just for you. Usually 15-20 seconds.</div>
+    <div class="dots"><span></span><span></span><span></span></div>
+  </div>`;
+  if(state.genError) return `<div class="error-box">Something went wrong. Check your connection and try again.<br><br><button class="btn-secondary" onclick="generateWeek()">Try again</button></div>`;
+  if(!hasChallengesForThisWeek()) return `<div style="text-align:center;padding:2rem 1rem">
+    <div style="font-size:15px;font-weight:500;margin-bottom:8px">Topics saved — ready to generate!</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.6">Click below to build this week's 5 personalised challenges.</div>
+    <button class="btn-primary" onclick="generateWeek()">✨ Generate my week's challenges</button>
+  </div>`;
+
+  const todayIdx = getTodayDayIndex();
+  let html = state.weekSummary ? `<div class="week-summary">✦ ${state.weekSummary}</div>` : '';
+
+  state.weeklyChallenges.forEach((ch,i)=>{
+    const done = isDayComplete(i);
+    const isToday = i===todayIdx;
+    const dc = DIFF_COLORS[ch.diff]||DIFF_COLORS.Beginner;
+    html += `<div class="day-card ${done?'done':''} ${isToday&&!done?'today-card':''}" onclick="state.selectedDay=${i};render()">
+      <div class="day-label">${ch.day}${isToday?' — today':''}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:20px">${ch.emoji}</span>
+        <div class="day-title">${ch.title}</div>
+      </div>
+      <div class="day-hook">${ch.hook}</div>
+      <div class="day-chips">
+        <span class="badge ${done?'badge-done':isToday?'badge-today':'badge-neutral'}">${done?'Done':isToday?'Today':'~12 min'}</span>
+        <span class="badge" style="background:${dc.bg};color:${dc.color}">${ch.diff}</span>
+        <span class="skill-tag">${ch.skillName||''}</span>
+        <span class="xp-chip">+${ch.xp||25} XP</span>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function renderHistory() {
+  if(!state.allChallenges||!state.allChallenges.length) return `<div class="empty-state">No previous weeks yet.<br>Complete this week's challenges to start building your history.</div>`;
+  return [...state.allChallenges].reverse().map(week=>{
+    const label = getWeekStart(new Date(week.date)).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    return `<div style="margin-bottom:1.5rem">
+      <div class="section-hd">Week of ${label}</div>
+      ${week.summary?`<div style="font-size:12px;color:var(--text2);margin-bottom:10px;font-style:italic">${week.summary}</div>`:''}
+      ${(week.challenges||[]).map(ch=>`<div class="day-card" style="cursor:default">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">${ch.emoji}</span>
+          <div>
+            <div style="font-size:13px;font-weight:500">${ch.day}: ${ch.title}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">${ch.skillName||''}</div>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderAchievements() {
+  const unlocked = checkAchs(state.completed,state.streak).map(a=>a.id);
+  return `<div class="ach-grid">${ACHIEVEMENTS.map(a=>{
+    const u = unlocked.includes(a.id);
+    return `<div class="ach-card ${u?'unlocked':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+      <div class="ach-xp">+${a.xp} XP</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderDetail(dayIdx) {
+  const ch = state.weeklyChallenges?.[dayIdx];
+  if(!ch) return '';
+  const done = isDayComplete(dayIdx);
+  const dc = DIFF_COLORS[ch.diff]||DIFF_COLORS.Beginner;
+  const claudeUrl = 'https://claude.ai/new?q=' + encodeURIComponent(ch.starter||'');
+  return `
+    <button class="back-btn" onclick="state.selectedDay=null;render()">← back to this week</button>
+    <div class="detail-card">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:1rem">
+        <div class="detail-emoji">${ch.emoji}</div>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:4px">${ch.day}</div>
+          <div class="detail-title">${ch.title}</div>
+          <div class="detail-hook">${ch.hook}</div>
+          <div class="detail-meta">
+            <span class="pill" style="background:var(--purple-light);color:var(--purple-dark)">⏱ 10-15 min</span>
+            <span class="pill" style="background:var(--green-light);color:var(--green-dark)">+${ch.xp||25} XP</span>
+            <span class="pill" style="background:${dc.bg};color:${dc.color}">${ch.diff}</span>
+          </div>
+        </div>
+      </div>
+      ${ch.topicTie?`<div class="topic-tie">✦ ${ch.topicTie}</div>`:''}
+      <div class="section-hd">What you'll do</div>
+      ${(ch.steps||[]).map((s,i)=>`<div class="step">
+        <div class="step-num">${i+1}</div>
+        <div class="step-text">${s}</div>
+      </div>`).join('')}
+      <div class="try-box">
+        <div class="try-lbl">Starter prompt — paste this into Claude to begin</div>
+        <div class="try-prompt">${ch.starter||''}</div>
+      </div>
+      <div class="hint-box"><div class="hint-lbl">Pro tip</div><div class="hint-text">${ch.hint||''}</div></div>
+      <div class="reflect-box"><div class="reflect-lbl">Before you close this tab</div><div class="reflect-text">${ch.reflect||''}</div></div>
+      ${done?`<div class="done-banner">✓ Completed — +${ch.xp||25} XP earned</div>`:''}
+      <div class="action-row">
+        <a class="btn-primary" href="${claudeUrl}" target="_blank">Open in Claude ↗</a>
+        ${done?'':`<button class="btn-secondary" onclick="markComplete(${dayIdx})">Mark complete ✓</button>`}
+        <button class="btn-secondary" onclick="state.selectedDay=null;render()">Back</button>
+      </div>
+    </div>`;
+}
+
+function render() {
+  const el = document.getElementById('app');
+  const xp = calcXP(state.completed);
+  const lvlIdx = calcLvlIdx(xp);
+  const lvl = LEVELS[lvlIdx];
+  const nextLvl = LEVELS[lvlIdx+1];
+  const xpInto = xp - lvl.min;
+  const xpNeeded = (nextLvl?nextLvl.min:LEVEL_MAXES[lvlIdx]) - lvl.min;
+  const pct = Math.min(100, Math.round((xpInto/xpNeeded)*100));
+  const [g1,g2] = getGreeting();
+  const unlocked = checkAchs(state.completed,state.streak).map(a=>a.id);
+  const needsCheckin = isNewWeek() || !state.weeklyTopics;
+
+  if(needsCheckin || state.editingTopics) {
+    el.innerHTML = `
+      ${needsCheckin&&!state.editingTopics?`<div class="hero" style="margin-bottom:1.25rem">
+        <div><div class="hero-h">Welcome back, Karen!</div><div class="hero-sub">New week — let's personalise your challenges.</div></div>
+        <div class="level-badge" style="background:${lvl.color}"><div class="level-num">L${lvlIdx+1}</div><div class="level-lbl">${lvl.name}</div></div>
+      </div>`:''}
+      ${renderCheckin()}`;
+    return;
+  }
+
+  if(state.selectedDay !== null) {
+    el.innerHTML = renderDetail(state.selectedDay);
+    return;
+  }
+
+  let tabContent = '';
+  if(state.tab==='this-week') tabContent = renderThisWeek();
+  else if(state.tab==='history') tabContent = renderHistory();
+  else if(state.tab==='achievements') tabContent = renderAchievements();
+
+  el.innerHTML = `
+    <div class="hero">
+      <div>
+        <div class="hero-h">${g1}</div>
+        <div class="hero-sub">${g2}</div>
+        ${state.streak>1?`<div class="hero-streak">🔥 ${state.streak}-day streak</div>`:''}
+      </div>
+      <div class="level-badge" style="background:${lvl.color}">
+        <div class="level-num">L${lvlIdx+1}</div>
+        <div class="level-lbl">${lvl.name}</div>
+      </div>
+    </div>
+    <div class="xp-row">
+      <span class="xp-lbl">${xp} XP</span>
+      <div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div>
+      <span class="xp-lbl">${nextLvl?nextLvl.name:'★ Legend'}</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">${state.completed.length}</div><div class="stat-lbl">Done</div></div>
+      <div class="stat"><div class="stat-num">${state.streak}</div><div class="stat-lbl">Streak 🔥</div></div>
+      <div class="stat"><div class="stat-num">${unlocked.length}</div><div class="stat-lbl">Badges 🏆</div></div>
+      <div class="stat"><div class="stat-num">${xp}</div><div class="stat-lbl">XP</div></div>
+    </div>
+    ${renderTopicsBanner()}
+    <div class="tabs">
+      <button class="tab ${state.tab==='this-week'?'active':''}" onclick="state.tab='this-week';render()">This week</button>
+      <button class="tab ${state.tab==='history'?'active':''}" onclick="state.tab='history';render()">History</button>
+      <button class="tab ${state.tab==='achievements'?'active':''}" onclick="state.tab='achievements';render()">Badges (${unlocked.length})</button>
+    </div>
+    ${tabContent}`;
+}
+
+loadState();
+render();
+</script>
+</body>
+</html>
